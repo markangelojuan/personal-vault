@@ -22,7 +22,7 @@ function App() {
       <Toaster
         position="top-center"
         toastOptions={{
-          duration: 3000,
+          duration: 4000,
         }}
       />
     </>

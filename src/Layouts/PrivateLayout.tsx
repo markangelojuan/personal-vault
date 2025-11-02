@@ -1,5 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import AppBar from "../components/AppBar";
 
 export const PrivateLayout = () => {
   const { user, loading } = useAuth();
@@ -14,8 +15,11 @@ export const PrivateLayout = () => {
 
   if (!user) return <Navigate to="/" replace />;
   return (
-    <div className="min-h-screen">
-      <Outlet />
+    <div className="flex flex-col h-screen">
+      <AppBar />
+      <main className="flex-1 overflow-auto">
+        <Outlet />
+      </main>
     </div>
   );
 };

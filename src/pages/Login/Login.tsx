@@ -27,9 +27,9 @@ const Login = () => {
       console.error(err);
       const error = err instanceof Error ? err : { message: String(err) };
       if (error.message.toLowerCase().includes("unauthorized")) {
-        toast.error("This account is not special.");
+        toast.error("Not in the secret club. Try bribing the dev? 🤑");
       } else {
-        toast.error("Something went wrong. Haha.");
+        toast.error("Yikes, that didn't go as planned! Try later! 😅");
       }
     }
   };

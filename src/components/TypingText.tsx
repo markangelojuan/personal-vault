@@ -45,7 +45,7 @@ const TypingText: React.FC<TypingTextProps> = ({
   return (
     <motion.span
       key={key}
-      className="text-4xl font-bold text-white font-mono md:text-7xl whitespace-nowrap inline-flex items-center"
+      className="text-4xl font-bold text-gray-100 font-mono md:text-7xl whitespace-nowrap inline-flex items-center"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
