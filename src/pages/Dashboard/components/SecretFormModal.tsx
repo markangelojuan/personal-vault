@@ -74,6 +74,8 @@ const SecretFormModal = ({
 
   if (!isOpen) return null;
 
+  const isFormValid = title.trim().length > 0 && password.trim().length > 0;
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <motion.div
@@ -94,6 +96,7 @@ const SecretFormModal = ({
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              maxLength={100}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="e.g. Gmail Account, Bank Name"
               autoFocus
@@ -108,6 +111,7 @@ const SecretFormModal = ({
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              maxLength={100}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="e.g. Username/Email"
             />
@@ -121,6 +125,7 @@ const SecretFormModal = ({
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              maxLength={255}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="e.g. Password/Pin"
             />
@@ -138,7 +143,7 @@ const SecretFormModal = ({
             <button
               type="submit"
               className="flex-1 bg-yellow-600 hover:bg-yellow-700 text-gray-100 px-4 py-2 rounded-lg disabled:bg-gray-400 cursor-pointer"
-              disabled={loading}
+              disabled={loading || !isFormValid}
             >
               {loading ? "Saving..." : editData ? "Update" : "Add"}
             </button>

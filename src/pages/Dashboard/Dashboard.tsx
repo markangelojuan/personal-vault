@@ -25,6 +25,8 @@ import toast from "react-hot-toast";
 import SecretFormModal, { type SecretData } from "./components/SecretFormModal";
 import SecretsTable from "./components/SecretsTable";
 import { useLoading } from "../../context/LoadingContext";
+import { logAudit } from "../../utils/audit";
+import { AUDIT_ACTIONS } from "../../constants/auditActions";
 
 interface Secret {
   id: string;
@@ -282,6 +284,7 @@ const Dashboard = () => {
           iv: iv,
           updated_at: serverTimestamp(),
         });
+        await logAudit(user?.email || 'Unknown user', AUDIT_ACTIONS.SECRET_UPDATED);
       } else {
         // Create new secret
         await addDoc(collection(db, "secrets"), {
@@ -294,6 +297,7 @@ const Dashboard = () => {
           updated_at: serverTimestamp(),
           is_deleted: false,
         });
+        await logAudit(user?.email || 'Unknown user', AUDIT_ACTIONS.SECRET_CREATED);
       }
 
       setCurrentPage(1);
@@ -320,6 +324,7 @@ const Dashboard = () => {
       setLastVisible(null);
       await fetchSecrets("initial");
       toast.success("Secret deleted!");
+      await logAudit(user?.email || 'Unknown user', AUDIT_ACTIONS.SECRET_DELETED);
     } catch (error) {
       console.error("Failed to delete:", error);
       toast.error("Yikes, that didn't go as planned! Try later! 😅");
