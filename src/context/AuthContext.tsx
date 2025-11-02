@@ -15,6 +15,8 @@ import {
 } from "firebase/auth";
 import { auth, db } from "../config/firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { useLoading } from "./LoadingContext";
+import { FirebaseError } from "firebase/app";
 
 interface AuthContextType {
   user: User | null;
@@ -27,6 +29,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const { setLoading: setLoadingDisplay } = useLoading();
   const [authUser, setAuthUser] = useState<User | null>(null);
   const [user, setUser] = useState<User | null>(null);
 
@@ -57,15 +60,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const loginWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    const result = await signInWithPopup(auth, provider);
+    setLoadingDisplay(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
 
-    const userDoc = await getDoc(
-      doc(db, "authorizedUsers", result.user.email!)
-    );
-    if (!userDoc.exists() || userDoc.data()?.is_deleted) {
-      await signOut(auth);
-      throw new Error("Unauthorized access");
+      const userDoc = await getDoc(
+        doc(db, "authorizedUsers", result.user.email!)
+      );
+      if (!userDoc.exists() || userDoc.data()?.is_deleted) {
+        await signOut(auth);
+        throw new Error("Unauthorized access");
+      }
+    } catch (error) {
+      if (
+        error instanceof FirebaseError &&
+        (error.code === "auth/popup-closed-by-user" ||
+          error.code === "auth/cancelled-popup-request")
+      ) {
+        return;
+      }
+      throw error;
+    } finally {
+      setLoadingDisplay(false);
     }
   };
 

@@ -76,7 +76,7 @@ const PassphraseModal = ({
 
   const handleVerifyPassphrase = async () => {
     if (!passphrase.trim()) {
-      toast.error("Please enter your passphrase");
+      console.error("Missing passphrase");
       return;
     }
     setLoading(true);
@@ -203,7 +203,7 @@ const PassphraseModal = ({
           <button
             type="submit"
             disabled={loading || (isSetup && !isValid) || (!isSetup && !passphrase.trim())}
-            className="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-lg cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="w-full bg-yellow-600 hover:bg-yellow-700 text-gray-100 py-2 rounded-lg cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             {loading ? "Processing..." : isSetup ? "Create" : "Unlock"}
           </button>

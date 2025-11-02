@@ -1,19 +1,23 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AppBar from "../components/AppBar";
+import { useEffect } from "react";
+import { useLoading } from "../context/LoadingContext";
 
 export const PrivateLayout = () => {
   const { user, loading } = useAuth();
+  const { setLoading } = useLoading();
+
+  useEffect(() => {
+    setLoading(loading);
+  }, [loading, setLoading]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p>Loading...</p>
-      </div>
-    );
+    return null;
   }
 
   if (!user) return <Navigate to="/" replace />;
+
   return (
     <div className="flex flex-col h-screen">
       <AppBar />

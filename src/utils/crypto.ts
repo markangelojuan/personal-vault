@@ -2,8 +2,8 @@ const stringToBuffer = (str: string): ArrayBuffer => {
   return new TextEncoder().encode(str).buffer;
 };
 
-const bufferToBase64 = (buffer: ArrayBuffer): string => {
-  const bytes = new Uint8Array(buffer);
+const bufferToBase64 = (buffer: ArrayBuffer | Uint8Array): string => {
+  const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
   let binary = '';
   for (let i = 0; i < bytes.length; i++) {
     binary += String.fromCharCode(bytes[i]);
@@ -23,7 +23,7 @@ const base64ToBuffer = (base64: string): ArrayBuffer => {
 // Generate random salt
 export const generateSalt = (): string => {
   const salt = crypto.getRandomValues(new Uint8Array(16));
-  return bufferToBase64(salt.buffer);
+  return bufferToBase64(salt);
 };
 
 // Derive encryption key from passphrase
@@ -71,7 +71,7 @@ export const createEncryptedTest = async (
   combined.set(iv);
   combined.set(new Uint8Array(encrypted), iv.length);
 
-  return bufferToBase64(combined.buffer);
+  return bufferToBase64(combined);
 };
 
 // Verify passphrase by trying to decrypt test value
@@ -95,4 +95,41 @@ export const verifyPassphrase = async (
   } catch {
     return false;
   }
+};
+
+// Generate IV as base64 string
+export const generateIV = (): string => {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  return bufferToBase64(iv);
+};
+
+// Encrypt text to base64
+export const encryptText = async (
+  text: string,
+  ivBase64: string,
+  key: CryptoKey
+): Promise<string> => {
+  const iv = new Uint8Array(base64ToBuffer(ivBase64));
+  const encrypted = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv },
+    key,
+    stringToBuffer(text)
+  );
+  return bufferToBase64(encrypted);
+};
+
+// Decrypt base64 to text
+export const decryptText = async (
+  encryptedBase64: string,
+  ivBase64: string,
+  key: CryptoKey
+): Promise<string> => {
+  const iv = new Uint8Array(base64ToBuffer(ivBase64));
+  const encryptedBuffer = base64ToBuffer(encryptedBase64);
+  const decrypted = await crypto.subtle.decrypt(
+    { name: "AES-GCM", iv },
+    key,
+    encryptedBuffer
+  );
+  return new TextDecoder().decode(decrypted);
 };
