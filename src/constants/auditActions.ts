@@ -4,6 +4,7 @@ export const AUDIT_ACTIONS = {
   LOGIN_FAILED: "login_failed",
   LOGOUT: "logout",
   UNAUTHORIZED_LOGIN_ATTEMPT: "unauthorized_login_attempt",
+  SESSION_ENDED: "session_ended",
   
   // Passphrase
   PASSPHRASE_SETUP: "passphrase_setup",

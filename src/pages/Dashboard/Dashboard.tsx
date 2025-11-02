@@ -27,6 +27,7 @@ import SecretsTable from "./components/SecretsTable";
 import { useLoading } from "../../context/LoadingContext";
 import { logAudit } from "../../utils/audit";
 import { AUDIT_ACTIONS } from "../../constants/auditActions";
+import { useInactivite } from "../../hooks/useInactive";
 
 interface Secret {
   id: string;
@@ -60,6 +61,8 @@ const Dashboard = () => {
     useState<QueryDocumentSnapshot<DocumentData> | null>(null);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [hasPrevPage, setHasPrevPage] = useState(false);
+
+  useInactivite(10);
 
   // Cleanup on component unmount
   useEffect(() => {
