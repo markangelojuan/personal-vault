@@ -10,6 +10,8 @@ import {
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 import { useAuth } from "../../../context/AuthContext";
+import { logAudit } from "../../../utils/audit";
+import { AUDIT_ACTIONS } from "../../../constants/auditActions";
 
 interface PassphraseModalProps {
   isSetup: boolean;
@@ -44,6 +46,9 @@ const PassphraseModal = ({
     hasMixedCase: false,
   });
 
+  const [failedAttempts, setFailedAttempts] = useState<number>(0);
+  const MAX_ATTEMPTS = 3;
+
   const handleSetupPassphrase = async () => {
     if (passphrase !== confirmPassphrase) {
       toast.error("Mismatch!");
@@ -65,10 +70,14 @@ const PassphraseModal = ({
       });
 
       toast.success("All set — don't forget! 🔐");
+      await logAudit(userEmail, AUDIT_ACTIONS.PASSPHRASE_SETUP);
       onSuccess(key);
     } catch (error) {
       console.error(error);
       toast.error("Yikes, that didn't go as planned! Try later! 😅");
+      await logAudit(userEmail, AUDIT_ACTIONS.PASSPHRASE_SETUP_FAILED, {
+        errorMessage: error instanceof Error ? error.message : "Unknown error",
+      });
     } finally {
       setLoading(false);
     }
@@ -89,9 +98,22 @@ const PassphraseModal = ({
 
       if (isValid) {
         toast.success("Vault unlocked! 🔓");
+        setFailedAttempts(0);
+        await logAudit(userEmail, AUDIT_ACTIONS.VAULT_UNLOCK);
         onSuccess(key);
       } else {
-        toast.error("That ain’t it, chief. 🚫");
+        const newAttempts = failedAttempts + 1;
+        setFailedAttempts(newAttempts);
+
+        if (newAttempts >= MAX_ATTEMPTS) {
+          toast.error("Sorry buddy, logging you out...");
+          await logAudit(userEmail, AUDIT_ACTIONS.MAX_ATTEMPT_REACHED);
+          await logout();
+        } else {
+          toast.error(
+            `That ain't it, chief. ${MAX_ATTEMPTS - newAttempts} attempts left. 🚫`
+          );
+        }
       }
     } catch (error) {
       console.error(error);
@@ -112,8 +134,9 @@ const PassphraseModal = ({
 
   const handleLogout = async () => {
     try {
+      logAudit(userEmail, AUDIT_ACTIONS.LOGOUT);
       await logout();
-      toast.success("adiós");
+      toast.success("adiós");      
     } catch (error) {
       console.error(error);
       toast.error("Yikes, that didn't go as planned! Try later! 😅");
@@ -202,7 +225,11 @@ const PassphraseModal = ({
 
           <button
             type="submit"
-            disabled={loading || (isSetup && !isValid) || (!isSetup && !passphrase.trim())}
+            disabled={
+              loading ||
+              (isSetup && !isValid) ||
+              (!isSetup && !passphrase.trim())
+            }
             className="w-full bg-yellow-600 hover:bg-yellow-700 text-gray-100 py-2 rounded-lg cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             {loading ? "Processing..." : isSetup ? "Create" : "Unlock"}

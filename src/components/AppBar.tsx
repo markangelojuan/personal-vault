@@ -1,11 +1,14 @@
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
+import { logAudit } from "../utils/audit";
+import { AUDIT_ACTIONS } from "../constants/auditActions";
 
 const AppBar = () => {
   const { user, logout } = useAuth();
 
   const handleLogout = async () => {
     try {
+      logAudit(user?.email || 'Unknown user', AUDIT_ACTIONS.LOGOUT);
       await logout();
       toast.success("adiós");
     } catch (error) {

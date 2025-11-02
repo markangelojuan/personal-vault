@@ -8,6 +8,8 @@ import { useEffect } from "react";
 import lockUnlockKey from "../../assets/animations/lock-unlock-key.json";
 import googleLogo from "../../assets/animations/google-logo.json";
 import arrowDown from "../../assets/animations/arrow-down.json";
+import { logAudit } from "../../utils/audit";
+import { AUDIT_ACTIONS } from "../../constants/auditActions";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -21,15 +23,30 @@ const Login = () => {
 
   const handleLogin = async () => {
     try {
-      await loginWithGoogle();
+      const loggedInUser = await loginWithGoogle();
+      if (loggedInUser?.email) {
+        await logAudit(loggedInUser.email, AUDIT_ACTIONS.LOGIN_SUCCESS);
+      }
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
       const error = err instanceof Error ? err : { message: String(err) };
       if (error.message.toLowerCase().includes("unauthorized")) {
         toast.error("Not in the secret club. Try bribing the dev? 🤑");
+        await logAudit(
+          user?.email || "Unknown user",
+          AUDIT_ACTIONS.UNAUTHORIZED_LOGIN_ATTEMPT
+        );
       } else {
         toast.error("Yikes, that didn't go as planned! Try later! 😅");
+        await logAudit(
+          user?.email || "Unknown user",
+          AUDIT_ACTIONS.LOGIN_FAILED,
+          {
+            errorMessage:
+              error instanceof Error ? error.message : "Unknown error",
+          }
+        );
       }
     }
   };

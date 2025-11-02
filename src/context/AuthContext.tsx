@@ -22,7 +22,7 @@ interface AuthContextType {
   user: User | null;
   authUser: User | null;
   loading: boolean;
-  loginWithGoogle: () => Promise<void>;
+  loginWithGoogle: () => Promise<User | null>;
   logout: () => Promise<void>;
 }
 
@@ -72,13 +72,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         await signOut(auth);
         throw new Error("Unauthorized access");
       }
+      return result.user;
     } catch (error) {
       if (
         error instanceof FirebaseError &&
         (error.code === "auth/popup-closed-by-user" ||
           error.code === "auth/cancelled-popup-request")
       ) {
-        return;
+        return null;
       }
       throw error;
     } finally {
