@@ -21,7 +21,7 @@ const AppBar = () => {
     <header className="bg-gray-900/90 text-gray-100 p-4 flex items-center justify-between shadow-lg md:p-6">
       <div className="flex items-center gap-2">
         <h1 className="text-xl font-bold font-mono text-gray-100 md:text-2xl">
-          M's Vault
+          Your Vault
         </h1>
       </div>
       <div className="flex items-center gap-4">

@@ -113,7 +113,7 @@ const Login = () => {
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="text-center px-4"
           >
-            <TypingText text="M's Vault" speed={0.1} loopDelay={3500} />
+            <TypingText text="Your Vault" speed={0.1} loopDelay={3500} />
 
             <p className="bg-linear-to-r from-yellow-400 via-orange-400 to-red-300 bg-clip-text text-transparent text-md mt-5 md:text-xl">
               One passphrase to remember, one vault to trust — your secrets stay
